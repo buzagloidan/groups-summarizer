@@ -1,0 +1,12 @@
+# WhatsApp Web API Service for Railway
+FROM aldinokemal2104/go-whatsapp-web-multidevice:latest
+
+# Railway automatically provides PORT environment variable
+# The service will listen on the PORT provided by Railway
+
+# Health check for Railway
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:${PORT:-3000}/app/login || exit 1
+
+# The base image already has the correct CMD, we just need to ensure
+# it uses Railway's PORT environment variable
