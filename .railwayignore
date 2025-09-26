@@ -1,0 +1,67 @@
+# Railway ignore file - similar to .gitignore but for Railway deployments
+
+# Development files
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+pip-log.txt
+pip-delete-this-directory.txt
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Local environment files
+.env.local
+.env.development
+.env.test
+
+# Database files
+*.db
+*.sqlite3
+
+# Logs
+logs/
+*.log
+
+# Testing
+.coverage
+.pytest_cache/
+.tox/
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Git
+.git/
+.gitignore
+
+# Docker (except Railway specific)
+docker-compose*.yml
+Dockerfile
+!Dockerfile.railway
+
+# Notebooks
+notebooks/
+*.ipynb
+
+# Temporary files
+tmp/
+temp/
+.DS_Store
+Thumbs.db
+
+# IDE files
+.idea/
+.vscode/
+*.sublime-*
+
+# Backup files
+*.bak
+*.backup

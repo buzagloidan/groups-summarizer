@@ -1,0 +1,54 @@
+FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim AS builder
+
+ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy
+
+# Install system dependencies
+RUN apt-get update -qy && \
+    apt-get install -qyy -o APT::Install-Recommends=false -o APT::Install-Suggests=false \
+    ca-certificates git wget curl && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copy dependency files
+COPY uv.lock pyproject.toml .python-version ./
+
+# Install Python dependencies
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-dev --no-install-project
+
+# Copy application code
+COPY . /app
+
+# Final stage
+FROM python:3.12-slim-bookworm
+
+# Create app user
+RUN groupadd --gid 1000 app && \
+    useradd --uid 1000 --gid app --shell /bin/bash --create-home app
+
+# Install runtime dependencies
+RUN apt-get update -qy && \
+    apt-get install -qyy -o APT::Install-Recommends=false -o APT::Install-Suggests=false \
+    ca-certificates curl && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Copy application and virtual environment
+COPY --from=builder --chown=app:app /app /app
+
+# Set environment variables
+ENV PATH="/app/.venv/bin:$PATH"
+ENV PYTHONPATH="/app/src:${PYTHONPATH:-}"
+
+# Switch to app user
+USER app
+WORKDIR /app
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:${PORT:-8000}/docs || exit 1
+
+# Run database migrations and start the application
+CMD ["sh", "-c", "alembic upgrade head && python app/main.py"]
