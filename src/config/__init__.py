@@ -37,6 +37,13 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
+    @property
+    def async_db_uri(self) -> str:
+        """Convert DB URI to use asyncpg driver"""
+        if self.db_uri.startswith("postgresql://"):
+            return self.db_uri.replace("postgresql://", "postgresql+asyncpg://", 1)
+        return self.db_uri
+
     @model_validator(mode="after")
     def apply_env(self) -> Self:
         if self.anthropic_api_key:

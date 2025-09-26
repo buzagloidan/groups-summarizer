@@ -36,10 +36,8 @@ async def lifespan(app: FastAPI):
         settings.whatsapp_basic_auth_password,
     )
 
-    if settings.db_uri.startswith("postgresql://"):
-        warn("use 'postgresql+asyncpg://' instead of 'postgresql://' in db_uri")
     engine = create_async_engine(
-        settings.db_uri,
+        settings.async_db_uri,
         pool_size=20,
         max_overflow=40,
         pool_timeout=30,
